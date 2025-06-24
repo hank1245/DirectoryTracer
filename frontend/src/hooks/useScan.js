@@ -6,7 +6,7 @@ export const useScan = () => {
   const [loading, setLoading] = useState(false);
   const [scanMetadata, setScanMetadata] = useState(null);
   const [rawScanData, setRawScanData] = useState(null);
-  const [scanError, setScanError] = useState(null);
+  const [scanError, setScanError] = useState(null); // 에러 상태 추가
 
   const handleScan = async (
     targetUrlList,
@@ -21,7 +21,7 @@ export const useScan = () => {
     setLoading(true);
     setResults({});
     setRawScanData(null);
-    setScanError(null);
+    setScanError(null); // 새 스캔 시작 시 에러 초기화
     const startTime = new Date();
 
     let initialScanMetadata = {
@@ -30,14 +30,16 @@ export const useScan = () => {
       max_depth: maxDepth,
       respect_robots_txt: respectRobotsTxt,
       startTime: startTime,
-      sessionCookiesProvided: !!sessionCookies,
+      endTime: null,
       useDefaultDictionary: useDefaultDictionary,
       dictionaryOperations: dictionaryOperations,
+      sessionCookiesProvided: !!sessionCookies, // ADDED
+      serverInfos: [],
     };
     setScanMetadata(initialScanMetadata);
 
     try {
-      const rawResults = await scanWebsite(
+      const apiResponse = await scanWebsite(
         targetUrlList,
         mode,
         exclusions,
@@ -45,24 +47,25 @@ export const useScan = () => {
         respectRobotsTxt,
         dictionaryOperations,
         useDefaultDictionary,
-        sessionCookies
+        sessionCookies // ADDED
       );
 
-      setRawScanData(rawResults);
+      // apiResponse is now e.g., { "target1": {"directories": d1, "server_info": s1}, "target2": ... }
+      setRawScanData(apiResponse);
 
-      const mergedDirectories = {};
-      const serverInfosList = {};
+      let mergedDirectories = {};
+      const serverInfosList = [];
 
-      Object.entries(rawResults).forEach(([targetUrl, result]) => {
-        if (result && result.directories) {
-          Object.assign(mergedDirectories, result.directories);
+      Object.entries(apiResponse).forEach(([targetUrl, data]) => {
+        if (data.directories) {
+          mergedDirectories = { ...mergedDirectories, ...data.directories };
         }
-        if (result && result.server_info) {
-          serverInfosList[targetUrl] = result.server_info;
+        if (data.server_info) {
+          serverInfosList.push({ target: targetUrl, info: data.server_info });
         }
       });
 
-      setResults(mergedDirectories);
+      setResults(mergedDirectories); // For ResultTable
       setScanMetadata((prev) => ({
         ...prev,
         endTime: new Date(),
@@ -73,13 +76,16 @@ export const useScan = () => {
       let errorMessage =
         "An unexpected error occurred during the scan. Please try again.";
       if (error.response && error.response.data) {
+        // FastAPI validation errors or custom detail from HTTPException
         if (typeof error.response.data.detail === "string") {
           errorMessage = error.response.data.detail;
         } else if (Array.isArray(error.response.data.detail)) {
+          // FastAPI validation error format
           errorMessage = error.response.data.detail
             .map((d) => `${d.loc.join(".")} - ${d.msg}`)
             .join("; ");
         } else if (error.response.data.error) {
+          // 이전 custom error 형식 (호환성)
           errorMessage = error.response.data.error;
         }
       } else if (error.message) {
@@ -103,7 +109,7 @@ export const useScan = () => {
         info &&
         (String(info.status_code) === "200" ||
           String(info.status_code) === "403") &&
-        info.source !== "js_api"
+        info.source !== "js_api" // API에서 온 것은 제외
     );
 
     const foundApiEndpoints = allEntries.filter(
@@ -121,8 +127,9 @@ export const useScan = () => {
     return {
       duration: duration.toFixed(2),
       totalPaths: allEntries.length,
+      // successfulPaths는 이제 순수 디렉토리 성공만 카운트
       successfulPaths: successfulDirEntries.length,
-      foundApiEndpoints: foundApiEndpoints.length,
+      foundApiEndpoints: foundApiEndpoints.length, // 새로 추가된 항목
       targets: scanMetadata.targets.length,
     };
   };
@@ -135,5 +142,5 @@ export const useScan = () => {
     handleScan,
     getScanSummary,
     scanError,
-  };
+  }; // scanError 반환
 };
