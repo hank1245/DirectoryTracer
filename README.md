@@ -1,137 +1,298 @@
 # Directory Tracer - Web Directory & API Endpoint Scanner
 
-Directory Tracer is a web application designed to scan websites for exposed directories, files, and potential API endpoints. It combines dictionary-based scanning, recursive crawling, and JavaScript analysis to uncover accessible paths.
+Directory Tracer is a comprehensive web application designed to scan websites for exposed directories, files, and potential API endpoints. It combines dictionary-based scanning, recursive crawling, and JavaScript analysis to uncover accessible paths with an intuitive cyberpunk-themed interface.
 
-## Overview
+## 🚀 Overview
 
-This tool allows users to input one or more target URLs and configure various scanning parameters. It attempts to identify directory listings, common files, and potential API base paths by analyzing linked JavaScript files. Identified API paths are also subjected to dictionary-based scanning. Authentication for sites requiring login can be handled by providing session cookies.
+This tool allows security researchers and developers to input one or more target URLs and configure various scanning parameters. It identifies directory listings, common files, and potential API base paths by analyzing linked JavaScript files. Authentication for sites requiring login can be handled by providing session cookies, making it suitable for authenticated scanning scenarios.
 
-## Key Features
+## ✨ Key Features
 
-- **Multi-Target Scanning**: Scan multiple websites simultaneously.
-- **Dictionary-Based Scanning**: Utilizes a customizable wordlist to search for common directories and files.
-  - Default dictionary provided.
-  - Users can add or remove dictionary items for a specific scan.
-- **Recursive Crawling**: Parses HTML links (`<a>` tags) to discover new paths up to a user-defined depth.
-- **Session Cookie Authentication**: Supports scanning sites that require login by allowing users to provide their browser's session cookie string.
-- **JavaScript API Endpoint Discovery**:
-  - Extracts JavaScript file links from crawled pages.
-  - Fetches and parses linked JavaScript files to find potential API endpoint base URLs (using regular expressions).
-  - Performs dictionary-based scans on discovered API base paths.
-- **Server Information Gathering**: Attempts to identify web server software and underlying frameworks via HTTP headers.
-- **Path Exclusions**:
-  - Respects `robots.txt` (configurable).
-  - Allows users to specify URL paths/patterns to exclude from scans.
-- **Proxy Support**:
-  - Normal mode (direct connection).
-  - Darkweb mode (utilizes a SOCKS5 proxy - pre-configured for Tor-like access if a SOCKS5 proxy is running at `localhost:9050`).
-- **Interactive Frontend**:
-  - User-friendly interface to configure scan parameters (target URLs, depth, exclusions, dictionary, cookies, mode).
-  - Displays scan results in a sortable and filterable table.
-  - Shows server information and a scan summary for each target.
-- **Downloadable JSON Report**: Generates a comprehensive JSON report including:
-  - Scan metadata (targets, duration, settings).
-  - Server information.
-  - Detailed information for all attempted paths (status code, content length, directory listing status, discovery source, etc.).
-  - List of successfully found directories/files.
+### 🎯 Multi-Target Scanning
 
-## Technology Stack
+- Scan multiple websites simultaneously
+- Support for HTTP and HTTPS protocols
+- Comprehensive target validation
 
-- **Backend**: Python (FastAPI), Requests, BeautifulSoup
-- **Frontend**: JavaScript (React), Axios
+### 📚 Dictionary-Based Scanning
+
+- Customizable wordlist for common directories and files
+- Default dictionary with 40+ common paths included
+- Add or remove dictionary items for specific scans
+- Supports both directory and file scanning
+
+### 🔄 Recursive Crawling
+
+- Parses HTML links (`<a>` tags) to discover new paths
+- User-defined maximum depth control
+- Intelligent link filtering and validation
+
+### 🔐 Session Cookie Authentication
+
+- Support for authenticated scanning
+- Simple cookie string input format
+- Maintains session state throughout scan
+
+### 🔍 JavaScript API Endpoint Discovery
+
+- Extracts JavaScript file links from crawled pages
+- Fetches and parses JS files using regex patterns
+- Discovers potential API endpoint base URLs
+- Performs dictionary-based scans on discovered API paths
+- Identifies endpoints like `/api/v1/users`, `/api/v2/status`, etc.
+
+### 📊 Server Information Gathering
+
+- Identifies web server software via HTTP headers
+- Detects underlying frameworks and technologies
+- Collects X-Powered-By and other revealing headers
+
+### 🚫 Path Exclusions
+
+- Respects `robots.txt` rules (configurable)
+- Custom URL pattern exclusions
+- Smart filtering to avoid unwanted paths
+
+### 🌐 Proxy Support
+
+- **Normal Mode**: Direct connection
+- **Darkweb Mode**: SOCKS5 proxy support (configured for Tor at `localhost:9050`)
+
+### 🎨 Modern Interface
+
+- Cyberpunk-themed dark UI
+- Real-time scan progress
+- Sortable and filterable results table
+- Responsive design for all devices
+
+### 📄 Comprehensive Reporting
+
+- Detailed JSON reports with scan metadata
+- Server information and discovery statistics
+- Complete path attempt details with status codes
+- Downloadable results for further analysis
+
+## 🛠 Technology Stack
+
+- **Backend**: Python (FastAPI), Requests, BeautifulSoup4
+- **Frontend**: React.js, Axios, CSS Modules
 - **Containerization**: Docker, Docker Compose
+- **Styling**: Custom CSS with cyberpunk theme
 
-## Installation and Execution
+## 📋 Installation and Setup
 
-The application is designed to be run using Docker and Docker Compose.
+### Prerequisites
 
-1.  **Prerequisites**:
+- Docker and Docker Compose installed
+- At least 2GB available RAM
+- Network access to target websites
 
-    - Docker installed and running.
-    - Docker Compose installed.
+### Quick Start
 
-2.  **Clone Repository (if applicable)**:
+1. **Clone the Repository**:
 
-    ```bash
-    git clone <repository-url>
-    cd directory_scanner
-    ```
+   ```bash
+   git clone <repository-url>
+   cd directory_scanner
+   ```
 
-3.  **Build and Run**:
-    Navigate to the project's root directory (where `docker-compose.yml` is located) and run:
+2. **Build and Run with Docker Compose**:
 
-    ```bash
-    docker-compose up --build -d
-    ```
+   ```bash
+   docker-compose up --build -d
+   ```
 
-    - The `-d` flag runs containers in detached mode.
-    - The `--build` flag forces a rebuild of the images if there are code changes.
+3. **Access the Application**:
 
-4.  **Accessing the Application**:
+   - **Frontend**: http://localhost:3000
+   - **Backend API Documentation**: http://localhost:8000/docs
 
-    - Frontend (React App): `http://localhost:3000`
-    - Backend API (FastAPI): `http://localhost:8000/docs` (for API documentation)
+4. **Stop the Application**:
+   ```bash
+   docker-compose down
+   ```
 
-5.  **Stopping the Application**:
-    ```bash
-    docker-compose down
-    ```
+### Manual Installation (Development)
 
-## How to Use
+#### Backend Setup
 
-1.  Open the application in your browser at `http://localhost:3000`.
-2.  **Target URL List**: Enter one or more full URLs to scan (e.g., `http://example.com`, `https://test.site/path/`). Each URL should be on a new line.
-3.  **Session Cookies (Optional)**:
-    - If the target site requires login, first log in to the site using your regular browser.
-    - Open your browser's Developer Tools (usually F12).
-    - Navigate to the "Application" (Chrome/Edge) or "Storage" (Firefox) tab.
-    - Find "Cookies" under the Storage section for the website.
-    - Copy the relevant session cookie(s) as a string (e.g., `sessionid=xxxxxx; anothertoken=yyyyyy`).
-    - Paste this string into the "Session Cookies" field in the scanner UI. The scanner will use these cookies for all requests to the target site.
-4.  **Scan Mode**:
-    - `Normal`: Direct connection.
-    - `Darkweb`: Uses a SOCKS5 proxy (default: `localhost:9050`). Ensure Tor or a similar proxy is running and accessible at this address if you select this mode.
-5.  **Max Depth**: Set the maximum depth for recursive crawling of links.
-6.  **Exclusions**: List URL paths or patterns (one per line) to exclude from the scan.
-7.  **Respect robots.txt**: Check this option to make the scanner obey `Disallow` rules from `robots.txt`.
-8.  **Dictionary Settings**:
-    - **Use Default Dictionary**: Uncheck to provide a completely custom list.
-    - **Add/Remove Items**: Modify the dictionary for the current scan. Changes are not saved permanently to the default list.
-9.  **Start Scan**: Click the "Start Scan" button.
-10. **View Results**:
-    - Scan progress and results will appear in the table.
-    - The table can be filtered by status code and discovery source (e.g., JS API).
-    - Server information for each target will be displayed.
-11. **Download Report**: Once the scan is complete, click "Download Report" to get a JSON file with detailed results.
+```bash
+cd backend
+pip install -r requirements.txt
+uvicorn main:app --reload --host 0.0.0.0 --port 8000
+```
 
-## Report Format
+#### Frontend Setup
 
-The JSON report includes:
+```bash
+cd frontend
+npm install
+npm start
+```
 
-- `scan_completed_timestamp`
-- `scan_duration_seconds`
-- `targets_scanned_count`
-- `targets_list`
-- `server_information`: An array where each object contains `target` and `info` (Server, X-Powered-By, Framework_Hint).
-- `max_depth`
-- `respect_robots_txt`
-- `session_cookies_provided`: Boolean indicating if session cookies were entered.
-- `exclusions_list`
-- `checked_paths_count`: Total number of paths attempted.
-- `all_attempted_paths_details`: An array of objects with details for each scanned URL:
-  - `url`
-  - `status_code`
-  - `content_length`
-  - `directory_listing`: Boolean
-  - `note`: Additional information from the scanner.
-  - `source`: How the path was discovered (e.g., `initial`, `crawl`, `js_api`).
-- `successful_directories_count`
-- `successful_directories_list`: A filtered list of successfully found items.
-- `dictionary_settings`: Information about the dictionary used.
+## 📖 How to Use
 
-## Important Notes & Disclaimer
+### Basic Scanning
 
-- **Ethical Use**: This tool is intended for educational purposes and for testing systems where you have explicit authorization to scan. Unauthorized scanning of websites is illegal and unethical.
-- **Performance**: Scanning large websites with high depth or large dictionaries can be time-consuming and resource-intensive.
-- **JavaScript Parsing Limitations**: Finding API endpoints in JavaScript files relies on regular expressions and may not find all endpoints or may produce false positives, especially with obfuscated or complex JavaScript.
-- **Session Cookie Security**: Exercise caution when handling session cookies. The application uses them for requests during the scan session but does not store them in the report (only a flag `session_cookies_provided` indicating if they were provided is stored).
+1. **Open the Application** at `http://localhost:3000`
+
+2. **Enter Target URLs**:
+
+   - Input one or more full URLs (e.g., `http://example.com`, `https://test.site/path/`)
+   - Each URL should be on a new line
+
+3. **Configure Scan Options**:
+
+   - **Scan Mode**: Choose between Normal or Darkweb (proxy) mode
+   - **Max Depth**: Set maximum crawling depth (1-5)
+   - **Respect robots.txt**: Enable/disable robots.txt compliance
+
+4. **Dictionary Settings**:
+
+   - Use default dictionary or customize for your scan
+   - Add/remove items as needed
+   - Changes apply only to current scan
+
+5. **Start Scanning**: Click "Start Scan" button
+
+### Authenticated Scanning
+
+For sites requiring login:
+
+1. **Login to Target Site** using your browser
+2. **Extract Session Cookies**:
+   - Open Developer Tools (F12)
+   - Navigate to Application/Storage tab
+   - Find Cookies for the target domain
+   - Copy cookie string (e.g., `sessionid=abc123; token=xyz789`)
+3. **Paste Cookie String** in the "Session Cookies" field
+4. **Start Scan** - all requests will include your session cookies
+
+### Advanced Configuration
+
+- **Exclusions**: Specify URL patterns to skip during scanning
+- **Custom Dictionary**: Modify the wordlist for specific target types
+- **Proxy Settings**: Configure SOCKS5 proxy for anonymous scanning
+
+## 📊 Understanding Results
+
+### Result Categories
+
+- **🟢 Status 200**: Successfully found directories/files
+- **🟡 Status 403**: Access denied (directory exists but forbidden)
+- **🔴 Status 404**: Not found
+- **🔵 API Endpoints**: Discovered through JavaScript analysis
+
+### Filtering Options
+
+- **Found Directories & APIs**: All successful discoveries (200, 403)
+- **Found API Endpoints**: Only JavaScript-discovered APIs
+- **Found Directories**: Traditional directory discoveries only
+- **All Attempted Paths**: Complete scan history
+- **Excluded Paths**: Skipped due to rules/robots.txt
+- **Errors/No Response**: Failed requests
+
+### Discovery Sources
+
+- **Initial Scan**: Dictionary-based discovery
+- **Crawled Page Scan**: Found through link crawling
+- **JS API Path**: Discovered in JavaScript files
+- **JS API Base**: Base API URLs from JavaScript
+- **Target Base URL**: Original target processing
+
+## 📄 Report Format
+
+Generated JSON reports include:
+
+```json
+{
+  "scan_completed_timestamp": "2024-01-01T12:00:00Z",
+  "scan_duration_seconds": 45.23,
+  "scan_metadata": {
+    "targets": ["http://example.com"],
+    "max_crawling_depth": 2,
+    "respect_robots_txt": true,
+    "exclusions_used": [],
+    "session_cookies_provided": false,
+    "dictionary_settings": {
+      "use_default_dictionary": true,
+      "dictionary_operations": []
+    },
+    "server_information": [
+      {
+        "target": "http://example.com",
+        "info": {
+          "server": "nginx/1.20.1",
+          "x_powered_by": "PHP/7.4.0"
+        }
+      }
+    ]
+  },
+  "summary": {
+    "total_targets_scanned": 1,
+    "total_paths_attempted": 156,
+    "successful_directories_found": 12,
+    "responsive_api_endpoints_found": 3
+  },
+  "all_attempted_paths_details": [
+    {
+      "url": "http://example.com/admin/",
+      "status_code": "403",
+      "content_length": 1234,
+      "directory_listing": false,
+      "source": "initial",
+      "note": "Access denied (403)."
+    }
+  ],
+  "successful_directories_list": [...],
+  "responsive_api_endpoints_list": [...]
+}
+```
+
+## ⚠️ Important Notes & Disclaimer
+
+### Ethical Use
+
+- **Educational Purposes**: This tool is intended for learning and authorized testing only
+- **Authorization Required**: Only scan systems you own or have explicit permission to test
+- **Legal Compliance**: Unauthorized scanning is illegal and unethical
+
+### Performance Considerations
+
+- **Resource Usage**: Scanning large sites can be time and resource intensive
+- **Rate Limiting**: Tool respects server resources but may trigger rate limits
+- **Network Impact**: High-depth scans generate significant network traffic
+
+### Technical Limitations
+
+- **JavaScript Parsing**: Regex-based parsing may miss obfuscated endpoints
+- **False Positives**: Some discovered paths may not be actual endpoints
+- **Dynamic Content**: May not detect dynamically generated paths
+
+### Security Considerations
+
+- **Session Cookies**: Handle authentication tokens securely
+- **Network Exposure**: Be cautious when using proxy modes
+- **Data Storage**: Reports contain sensitive path information
+
+## 🤝 Contributing
+
+We welcome contributions! Please:
+
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Add tests if applicable
+5. Submit a pull request
+
+## 📞 Support
+
+For issues, questions, or feature requests:
+
+- Open an issue on the repository
+- Check existing documentation
+- Review the API documentation at `/docs`
+
+---
+
+**Remember**: Always obtain proper authorization before scanning any website or system. Use this tool responsibly and in accordance with applicable laws and regulations.
