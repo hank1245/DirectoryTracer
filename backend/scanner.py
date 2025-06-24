@@ -18,6 +18,15 @@ HEADERS = {
                    'Chrome/110.0.0.0 Safari/537.36')
 }
 
+# API 경로 스캔을 위한 특화 사전 (예시)
+DEFAULT_API_DICTIONARY = [
+    "", # Ensures the base API path itself is tested
+    "users", "user", "items", "products", "orders", "cart", "auth", "login", "logout",
+    "register", "profile", "settings", "config", "status", "health", "ping", "api-docs",
+    "swagger", "openapi", "graphql", "v1", "v2", "v3", "test", "dev", "prod", "data",
+    "metrics", "logs", "admin", "management", "payment", "search", "notifications"
+]
+
 class MultiWebScanner:
     def __init__(self, target_url, dictionary, mode='normal', exclusions=None, respect_robots_txt=True, session_cookies_string: Optional[str] = None):
         """
@@ -26,7 +35,8 @@ class MultiWebScanner:
         respect_robots_txt: robots.txt의 Disallow 규칙을 따를지 여부
         """
         self.target_url = target_url.rstrip('/')
-        self.dictionary = dictionary
+        self.dictionary = dictionary # 일반 경로용 사전
+        self.api_dictionary = DEFAULT_API_DICTIONARY # API 경로용 사전
         self.base_domain = urlparse(self.target_url).netloc
         self.found_directories = {}
         self.dictionary_scanned = set()
@@ -343,31 +353,53 @@ class MultiWebScanner:
         주어진 base_url과 딕셔너리 항목을 조합하여 URL을 요청한 후,
         디렉토리 리스팅 여부와 상태 코드를 확인.
         제외된 URL은 스캔하지 않음.
+        API 경로는 디렉토리 리스팅 분석을 수행하지 않음.
         """
         url = f"{base_url.rstrip('/')}/{dir_name.lstrip('/')}"
         
         if self.is_excluded(url):
-            print(f"[-] 딕셔너리 스캔에서 제외된 URL (초기 확인, Source: {source}): {url}")
+            print(f"[-] 딕셔 dictionaries_scan_single에서 제외된 URL (초기 확인, Source: {source}): {url}")
             return url, {
                 'status_code': 'EXCLUDED',
                 'content_length': 0,
-                'directory_listing': False,
+                'directory_listing': False, # API 경로의 경우 항상 False
                 'note': 'URL excluded by configuration or robots.txt.',
-                'source': source # source 정보 추가
+                'source': source 
             }
 
         response = self.fetch_url(url) 
         if response:
             status_code = response.status_code
             content_length = len(response.content)
-            directory_listing = self.analyze_directory_listing(response) if status_code == 200 else False
+            directory_listing = False # 기본값 False
+            note = f'Scan attempted. Status: {status_code}' # 기본 노트
+
+            if source == 'js_api':
+                # API 경로는 디렉토리 리스팅 분석을 수행하지 않음
+                if status_code == 200:
+                    note = 'API endpoint/path responded (200).'
+                elif status_code == 403:
+                    note = 'API endpoint/path access denied (403).'
+                elif status_code == 404:
+                    note = 'API endpoint/path not found (404).'
+                # 다른 상태 코드에 대한 노트는 기본값 사용
+            else: # 일반 경로 스캔
+                if status_code == 200:
+                    directory_listing = self.analyze_directory_listing(response)
+                    if directory_listing:
+                        note = 'Directory listing found (200).'
+                    else:
+                        note = 'Path found (200).'
+                elif status_code == 403:
+                     note = 'Access denied (403).'
+                # 다른 상태 코드에 대한 노트는 기본값 사용
             
             return url, {
                 'status_code': status_code,
                 'content_length': content_length,
                 'directory_listing': directory_listing,
-                'note': f'Scan attempted. Status: {status_code}' if status_code != 200 else 'Scan successful.',
-                'source': source # source 정보 추가
+                'note': note,
+                'source': source 
             }
         else:
             return url, {
@@ -375,25 +407,27 @@ class MultiWebScanner:
                 'content_length': 0,
                 'directory_listing': False,
                 'note': 'Failed to fetch URL (request error or excluded by fetch_url).',
-                'source': source # source 정보 추가
+                'source': source 
             }
 
     def dictionary_scan(self, base_url, source='initial'): # source 기본값을 'initial'로 변경
         """
         주어진 base_url에 대해 딕셔너리 목록으로 디렉토리 존재 여부를 멀티스레딩으로 스캔.
+        source에 따라 일반 사전 또는 API 특화 사전을 사용.
         """
-        # 다른 출처의 스캔을 허용하기 위해 self.dictionary_scanned 검사 로직 수정 또는 제거 고려.
-        # 여기서는 일단 유지하되, source에 따라 다르게 처리할 수 있음을 인지.
-        # if base_url in self.dictionary_scanned and source not in ['js_api']: # js_api는 재스캔 허용 등
-        #     print(f"[*] 이미 일반 스캔 완료 (Source: {source}): {base_url}")
-        #     return
+        # ... (기존 dictionary_scanned 검사 로직은 유지하거나 source에 따라 조정 가능)
             
-        print(f"[+] 딕셔너리 스캔 시작 (Source: {source}): {base_url}")
+        current_dictionary = self.api_dictionary if source == 'js_api' else self.dictionary
+        if not current_dictionary:
+            print(f"[-] {source} 스캔을 위한 사전이 비어있습니다: {base_url}")
+            return
+
+        print(f"[+] {'API' if source == 'js_api' else '일반'} 딕셔너리 스캔 시작 (Source: {source}): {base_url} (사전 크기: {len(current_dictionary)})")
         results = {}
         with concurrent.futures.ThreadPoolExecutor(max_workers=10) as executor:
             future_to_dir = {
-                executor.submit(self.dictionary_scan_single, base_url, dir_name, source): dir_name # source 전달
-                for dir_name in self.dictionary
+                executor.submit(self.dictionary_scan_single, base_url, dir_name, source): dir_name
+                for dir_name in current_dictionary # 현재 source에 맞는 사전 사용
             }
             for future in concurrent.futures.as_completed(future_to_dir):
                 original_dir_name = future_to_dir[future]
@@ -402,22 +436,21 @@ class MultiWebScanner:
                     _, scan_info = future.result() 
                     results[attempted_url] = scan_info 
                 except Exception as e:
-                    print(f"[!] 딕셔너리 항목 {original_dir_name} 스캔 작업 중 예외 발생 (Source: {source}): {e}")
+                    print(f"[!] {'API ' if source == 'js_api' else ''}딕셔너리 항목 {original_dir_name} 스캔 작업 중 예외 발생 (Source: {source}): {e}")
                     results[attempted_url] = {
                         'status_code': 'SCANNER_TASK_ERROR',
                         'content_length': 0,
                         'directory_listing': False,
                         'note': f'Internal error during scan attempt for {original_dir_name}: {str(e)}',
-                        'source': source # source 정보 추가
+                        'source': source 
                     }
         self.found_directories.update(results)
-        # 일반적인 크롤링이나 초기 스캔에 의해서만 dictionary_scanned에 추가
-        if source in ['initial', 'crawl']:
+        if source in ['initial', 'crawl']: # API 스캔은 dictionary_scanned에 추가하지 않음 (API 베이스 경로는 여러번 스캔될 수 있음)
             self.dictionary_scanned.add(base_url)
 
     def crawl_recursive(self, current_url, visited, depth, max_depth):
         """
-        재귀적으로 내부 링크를 방문하며 각 페이지에서 딕셔너리 스캔을 진행합니다.
+        재귀적으로 내부 링크를 방문하며 각 페이지에서 딕셔리 스캔을 진행합니다.
         제외된 URL은 크롤링하지 않습니다. 또한 JS 파일에서 API 엔드포인트를 찾아 스캔합니다.
         """
         if depth > max_depth:
@@ -433,13 +466,43 @@ class MultiWebScanner:
         print(f"[+] 크롤링 (Depth: {depth}) : {current_url}")
         visited.add(current_url)
         
-        self.dictionary_scan(current_url, source='crawl') # source='crawl' 명시
-
+        # 먼저 현재 크롤링된 URL 자체를 fetch하고 기록 시도
         response = self.fetch_url(current_url)
         if not response:
+            # 크롤링 대상 URL 자체에 접근할 수 없으면 더 이상 진행하지 않음
+            # (단, dictionary_scan은 시도해볼 수 있으나, 여기서는 접근 가능한 페이지만 추가 분석)
+            # NO_RESPONSE_OR_ERROR를 기록할 수도 있지만, 일단은 반환
             return
+
+        # 현재 크롤링된 URL 자체를 결과에 추가 (이미 다른 방식으로 발견되지 않았다면)
+        if current_url not in self.found_directories:
+            status_code = response.status_code
+            content_length = len(response.content)
+            directory_listing = False
+            note = f'Crawled path. Status: {status_code}'
+
+            if 'text/html' in response.headers.get('Content-Type', '').lower():
+                directory_listing = self.analyze_directory_listing(response)
+
+            if status_code == 200:
+                note = 'Crawled path found (200).'
+                if directory_listing:
+                    note = 'Crawled path with directory listing found (200).'
+            elif status_code == 403:
+                note = 'Crawled path access denied (403).'
+            
+            self.found_directories[current_url] = {
+                'status_code': status_code,
+                'content_length': content_length,
+                'directory_listing': directory_listing,
+                'note': note,
+                'source': 'crawl'
+            }
         
-        # Analyze headers if not done yet (redundant if fetch_url does it, but safe)
+        # 현재 크롤링된 URL에 대해 딕셔너리 스캔 수행
+        self.dictionary_scan(current_url, source='crawl')
+
+        # response 가 유효하므로 헤더 분석 및 내부 링크/JS 파싱 진행
         if urlparse(current_url).netloc == self.base_domain:
             self._analyze_response_headers(response)
 
@@ -449,17 +512,16 @@ class MultiWebScanner:
         if soup: 
             js_file_urls = self._extract_js_links(soup, current_url)
             for js_url in js_file_urls:
-                if js_url not in self.processed_js_files:
+                if js_url not in self.processed_js_files: # Check if JS file itself was already processed
                     print(f"[+] JS 파일 발견 및 파싱 시도: {js_url}")
-                    self.processed_js_files.add(js_url)
+                    # Add to processed_js_files here to avoid re-fetching/re-parsing the same JS file
+                    self.processed_js_files.add(js_url) 
                     js_response = self.fetch_url(js_url) 
                     if js_response and js_response.text:
-                        api_endpoints = self._parse_js_for_endpoints(js_response.text, current_url) 
-                        for endpoint_url_base in api_endpoints:
-                            if endpoint_url_base not in self.js_discovered_api_endpoints and not self.is_excluded(endpoint_url_base):
-                                print(f"[+] JS에서 API 엔드포인트 발견, 딕셔너리 스캔 시도: {endpoint_url_base}")
-                                self.js_discovered_api_endpoints.add(endpoint_url_base)
-                                self.dictionary_scan(endpoint_url_base.rstrip('/'), source='js_api') # source='js_api' 명시
+                        # Call js_scan_and_evaluate_api_bases to handle API endpoints found in this JS file.
+                        # js_url is the URL of the JS file itself, which acts as the 'page_url_where_script_was_found'
+                        # for resolving relative paths within that JS content.
+                        self.js_scan_and_evaluate_api_bases(js_response.text, js_url)
                     else:
                         print(f"[-] JS 파일 내용을 가져오지 못함: {js_url}")
         # --- End JavaScript Link Extraction ---
@@ -514,14 +576,111 @@ class MultiWebScanner:
 
         # Attempt to fetch the main target URL to analyze its headers early
         initial_response = self.fetch_url(self.target_url)
-        if initial_response and not self._headers_analyzed_for_target:
-             self._analyze_response_headers(initial_response)
+        if initial_response:
+            # 초기 타겟 URL 자체를 결과에 추가 (이미 발견되지 않았다면)
+            if self.target_url not in self.found_directories:
+                status_code = initial_response.status_code
+                content_length = len(initial_response.content)
+                directory_listing = False
+                note = f'Initial target. Status: {status_code}'
+
+                if 'text/html' in initial_response.headers.get('Content-Type', '').lower():
+                    directory_listing = self.analyze_directory_listing(initial_response)
+
+                if status_code == 200:
+                    note = 'Initial target found (200).'
+                    if directory_listing:
+                        note = 'Initial target with directory listing found (200).'
+                elif status_code == 403:
+                    note = 'Initial target access denied (403).'
+                
+                self.found_directories[self.target_url] = {
+                    'status_code': status_code,
+                    'content_length': content_length,
+                    'directory_listing': directory_listing,
+                    'note': note,
+                    'source': 'target_base' 
+                }
+
+            if not self._headers_analyzed_for_target:
+                 self._analyze_response_headers(initial_response)
 
         # 1. 초기 target_url에 대해 딕셔너리 스캔 수행 (source='initial'은 dictionary_scan의 기본값)
-        self.dictionary_scan(self.target_url) 
+        self.dictionary_scan(self.target_url, source='initial') 
         
         visited = set()
         print(f"[+] 재귀적 크롤링 시작: {self.target_url}")
         self.crawl_recursive(self.target_url, visited, depth=0, max_depth=max_depth)
         
         return {"directories": self.found_directories, "server_info": self.server_info}
+
+    def js_scan_and_evaluate_api_bases(self, js_content, page_url):
+        """
+        Parses JS content for potential API paths, records the base paths if responsive,
+        and then performs a dictionary scan on them.
+        Uses self.js_discovered_api_endpoints to avoid redundant processing.
+        page_url is the URL of the page/script where the js_content was found.
+        """
+        potential_api_paths = self._parse_js_for_endpoints(js_content, page_url) # Use _parse_js_for_endpoints
+
+        if potential_api_paths:
+            # This print might be redundant if _parse_js_for_endpoints already prints it.
+            # Consider removing if _parse_js_for_endpoints's print is sufficient.
+            # print(f"[*] js_scan_and_evaluate_api_bases: Found potential API paths: {potential_api_paths}") 
+            for api_base_url in potential_api_paths:
+                # Check if this api_base_url has already been processed or is excluded
+                if api_base_url in self.js_discovered_api_endpoints:
+                    # print(f"[*] JS API Base {api_base_url} already processed via js_discovered_api_endpoints.") # Optional log
+                    continue
+                if self.is_excluded(api_base_url):
+                    print(f"[-] JS API Base {api_base_url} is excluded.")
+                    self.js_discovered_api_endpoints.add(api_base_url) # Add to set to prevent re-check
+                    continue
+                
+                # Add to set before processing to handle concurrent/re-entrant scenarios if any (though current model is sequential for this part)
+                self.js_discovered_api_endpoints.add(api_base_url)
+
+                print(f"[+] JS에서 API 엔드포인트 발견, 직접 확인 및 딕셔너리 스캔 시도: {api_base_url}")
+
+                # 1. Directly fetch and record the discovered api_base_url itself
+                needs_direct_check = True # Retained for clarity, though always true now after initial checks
+                
+                # The check `if api_base_url in self.found_directories:` and its inner logic 
+                # for 'js_api_base' source can be simplified as we now control flow with js_discovered_api_endpoints.
+                # We will always attempt to fetch and record if it's a new endpoint.
+                # If it was already in found_directories from another source (e.g. 'crawl'), 
+                # this will update/overwrite it with 'js_api_base' if found via JS.
+
+                if needs_direct_check:
+                    response = self.fetch_url(api_base_url)
+                    if response:
+                        status_code = response.status_code
+                        if status_code in [200, 403, 401, 405, 400, 404, 500]:
+                            content_length = len(response.content)
+                            directory_listing = self.analyze_directory_listing(response) if 'text/html' in response.headers.get('Content-Type','').lower() else False
+                            
+                            note = f"JS Discovered API Base. Status: {status_code}"
+                            if status_code == 200:
+                                note = f"JS Discovered API Base found (200)."
+                            elif status_code == 403:
+                                note = f"JS Discovered API Base access denied (403)."
+                            elif status_code == 401:
+                                note = f"JS Discovered API Base requires authentication (401)."
+                            elif status_code == 405:
+                                note = f"JS Discovered API Base - Method Not Allowed (405)."
+                            elif status_code == 404:
+                                note = f"JS Discovered API Base - Not Found (404)."
+
+                            self.found_directories[api_base_url] = {
+                                'status_code': status_code,
+                                'content_length': content_length,
+                                'directory_listing': directory_listing,
+                                'note': note,
+                                'source': 'js_api_base'
+                            }
+                            print(f"[+] JS API Base Path Recorded: {api_base_url} (Status: {status_code}, Source: js_api_base)")
+                
+                # 2. Then, proceed with dictionary scanning against this base_url using API dictionary
+                # Ensure dictionary_scan itself doesn't re-add to js_discovered_api_endpoints or have redundant checks for the base.
+                # The `dictionary_scanned` set in `dictionary_scan` is for 'initial' and 'crawl' sources, so it's fine.
+                self.dictionary_scan(api_base_url, source='js_api')

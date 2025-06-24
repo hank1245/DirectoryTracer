@@ -1,18 +1,46 @@
+/* Import theme variables */
+@import url("./styles/theme.css");
+
 body {
   margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen",
-    "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue",
-    sans-serif;
+  font-family: "Courier New", "Monaco", "Consolas", monospace;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  overflow-x: hidden;
+}
+
+body::before {
+  content: "";
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: radial-gradient(
+      circle at 25% 25%,
+      rgba(0, 255, 65, 0.1) 0%,
+      transparent 50%
+    ),
+    radial-gradient(
+      circle at 75% 75%,
+      rgba(0, 212, 255, 0.1) 0%,
+      transparent 50%
+    );
+  pointer-events: none;
+  z-index: -2;
 }
 
 code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New",
-    monospace;
+  font-family: "Courier New", "Monaco", "Consolas", monospace;
+  background: var(--bg-secondary);
+  color: var(--accent-primary);
+  padding: 0.2em 0.4em;
+  border-radius: 3px;
+  border: 1px solid var(--border-primary);
 }
 
-/* 기존 App.css의 글로벌 스타일들을 여기로 이동 */
 * {
   box-sizing: border-box;
 }
@@ -20,4 +48,17 @@ code {
 html,
 body {
   height: 100%;
+}
+
+/* Custom scrollbar 제거 - 기본 스크롤바 사용 */
+
+/* Selection */
+::selection {
+  background: var(--accent-primary);
+  color: var(--text-inverse);
+}
+
+::-moz-selection {
+  background: var(--accent-primary);
+  color: var(--text-inverse);
 }
