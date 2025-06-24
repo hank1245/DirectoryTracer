@@ -6,14 +6,14 @@
 
 .formLabel {
   font-weight: 600;
-  color: #2c3e50;
+  color: var(--text-primary); /* #2c3e50에서 변경 */
   font-size: 1.1rem;
   margin: 0;
 }
 
 .formHint {
   font-size: 0.85rem;
-  color: #6c757d;
+  color: var(--text-secondary); /* #6c757d에서 변경 */
   margin: 0;
   line-height: 1.4;
 }
@@ -28,7 +28,7 @@
   gap: 0.5rem;
   cursor: pointer;
   font-size: 0.95rem;
-  color: #2c3e50;
+  color: var(--text-primary); /* #2c3e50에서 변경 */
 }
 
 .formCheckbox {
@@ -46,16 +46,22 @@
 .formControl {
   flex: 1;
   padding: 0.75rem;
-  border: 1px solid #ced4da;
+  border: 1px solid var(--border-primary); /* #ced4da에서 변경 */
   border-radius: 4px;
   font-size: 0.9rem;
   transition: border-color 0.3s ease, box-shadow 0.3s ease;
+  background: var(--bg-secondary); /* 추가 */
+  color: var(--text-primary); /* 추가 */
 }
 
 .formControl:focus {
   outline: none;
-  border-color: #3498db;
-  box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
+  border-color: var(--accent-primary); /* #3498db에서 변경 */
+  box-shadow: 0 0 0 2px rgba(0, 255, 65, 0.2); /* 색상 변경 */
+}
+
+.formControl::placeholder {
+  color: var(--text-muted); /* 추가 */
 }
 
 .btn {
@@ -69,23 +75,26 @@
 }
 
 .btnSecondary {
-  background-color: #6c757d;
-  color: white;
+  background-color: var(--bg-secondary); /* #6c757d에서 변경 */
+  color: var(--text-primary); /* white에서 변경 */
+  border: 1px solid var(--border-primary); /* 추가 */
 }
 
 .btnSecondary:hover:not(:disabled) {
-  background-color: #5a6268;
+  background-color: var(--bg-hover); /* #5a6268에서 변경 */
+  border-color: var(--accent-primary); /* 추가 */
 }
 
 .btnSecondary:disabled {
-  background-color: #adb5bd;
+  background-color: var(--bg-secondary); /* #adb5bd에서 변경 */
+  color: var(--text-muted); /* 추가 */
   cursor: not-allowed;
 }
 
 .btnLink {
   background: none;
   border: none;
-  color: #3498db;
+  color: var(--accent-secondary); /* #3498db에서 변경 */
   text-decoration: underline;
   cursor: pointer;
   font-size: 0.85rem;
@@ -93,7 +102,7 @@
 }
 
 .btnLink:hover {
-  color: #2980b9;
+  color: var(--accent-primary); /* #2980b9에서 변경 */
 }
 
 .dictionaryList {
@@ -103,9 +112,9 @@
 .dictionaryItems {
   max-height: 300px;
   overflow-y: auto;
-  border: 1px solid #e9ecef;
+  border: 1px solid var(--border-primary); /* #e9ecef에서 변경 */
   border-radius: 4px;
-  background-color: white;
+  background-color: var(--bg-secondary); /* white에서 변경 */
 }
 
 .dictionaryItem {
@@ -113,9 +122,10 @@
   justify-content: space-between;
   align-items: center;
   padding: 0.5rem 0.75rem;
-  border-bottom: 1px solid #f1f3f4;
+  border-bottom: 1px solid var(--border-primary); /* #f1f3f4에서 변경 */
   font-family: "Courier New", monospace;
   font-size: 0.85rem;
+  color: var(--text-primary); /* 추가 */
 }
 
 .dictionaryItem:last-child {
@@ -123,13 +133,13 @@
 }
 
 .dictionaryItem:hover {
-  background-color: #f8f9fa;
+  background-color: var(--bg-hover); /* #f8f9fa에서 변경 */
 }
 
 .btnClose {
   background: none;
   border: none;
-  color: #dc3545;
+  color: var(--danger); /* #dc3545에서 변경 */
   font-size: 1.1rem;
   cursor: pointer;
   padding: 0.25rem;
@@ -138,13 +148,13 @@
 }
 
 .btnClose:hover {
-  background-color: #f5c6cb;
+  background-color: rgba(255, 0, 64, 0.2); /* #f5c6cb에서 변경 */
 }
 
 .emptyMessage {
   text-align: center;
   padding: 2rem;
-  color: #6c757d;
+  color: var(--text-muted); /* #6c757d에서 변경 */
   font-style: italic;
   margin: 0;
 }

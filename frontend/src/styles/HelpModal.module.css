@@ -36,16 +36,16 @@
 
 .helpContent h3 {
   margin-top: 0;
-  color: #2c3e50;
+  color: black;
 }
 
 .helpSection {
   margin-bottom: 1.5rem;
+  color: black;
 }
 
 .helpSection h4 {
   margin-bottom: 0.5rem;
-  color: #34495e;
 }
 
 .helpSection p {
