@@ -4,6 +4,10 @@ Directory Tracer is a comprehensive web application designed to scan websites fo
 
 ## 🚀 Overview
 
+https://github.com/user-attachments/assets/c1270fc9-bfa5-442e-830c-70446e8900a3
+
+
+
 This tool allows security researchers and developers to input one or more target URLs and configure various scanning parameters. It identifies directory listings, common files, and potential API base paths by analyzing linked JavaScript files. Authentication for sites requiring login can be handled by providing session cookies, making it suitable for authenticated scanning scenarios.
 
 ## ✨ Key Features
