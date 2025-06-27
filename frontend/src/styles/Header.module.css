@@ -85,7 +85,14 @@
 
 .bmcButton {
   transform: scale(0.85);
-  display: none !important; /* Hide the script-loaded button initially */
+  display: none;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.bmcButton.loaded {
+  display: block !important;
+  opacity: 1;
 }
 
 .appHeader::before {
