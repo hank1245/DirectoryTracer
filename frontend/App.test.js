@@ -2,7 +2,6 @@ import React from "react";
 import { render, screen } from "@testing-library/react";
 import App from "./App.js";
 
-// API 모킹
 jest.mock("./api.js");
 
 describe("App", () => {

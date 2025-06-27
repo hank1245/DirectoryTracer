@@ -1,6 +1,6 @@
-import sys # sys 모듈 임포트
-import traceback # traceback 모듈 임포트
-from fastapi import FastAPI, HTTPException # HTTPException 임포트
+import sys
+import traceback
+from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 from scanner import MultiWebScanner
 from fastapi.middleware.cors import CORSMiddleware
@@ -15,7 +15,6 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# 기본 딕셔너리 목록을 상수로 정의
 DEFAULT_DICTIONARY = [
     "admin/", "backup/", "test/", "dev/", "old/", "logs/", "tmp/", "temp/",
     "public/", "uploads/", "files/", "downloads/", "data/", "config/",
@@ -27,7 +26,7 @@ DEFAULT_DICTIONARY = [
 ]
 
 class DictionaryOperation(BaseModel):
-    type: str  # "add" 또는 "remove"
+    type: str
     paths: List[str]
 
 class ScanRequest(BaseModel):
@@ -38,13 +37,10 @@ class ScanRequest(BaseModel):
     exclusions: list[str] = []
     max_depth: int = 2
     respect_robots_txt: bool = True
-    session_cookies_string: Optional[str] = None # ADDED
+    session_cookies_string: Optional[str] = None
 
-@app.post("/scan")
-async def scan(request: ScanRequest):
-    all_results_by_target = {} 
-
-    # 딕셔너리 준비
+def prepare_dictionary(request: ScanRequest) -> List[str]:
+    """Prepare the final dictionary based on request parameters."""
     final_dictionary = []
     if request.use_default_dictionary:
         final_dictionary.extend(DEFAULT_DICTIONARY)
@@ -53,16 +49,17 @@ async def scan(request: ScanRequest):
         current_dict_set = set(final_dictionary)
         for op in request.dictionary_operations:
             if op.type == "add":
-                for path in op.paths:
-                    current_dict_set.add(path)
+                current_dict_set.update(op.paths)
             elif op.type == "remove":
-                for path in op.paths:
-                    current_dict_set.discard(path)
-        final_dictionary = sorted(list(current_dict_set))
+                current_dict_set.difference_update(op.paths)
+        final_dictionary = sorted(current_dict_set)
     
-    # 빈 딕셔너리인 경우 기본값 사용 (이중 확인)
-    if not final_dictionary:
-        final_dictionary = DEFAULT_DICTIONARY
+    return final_dictionary or DEFAULT_DICTIONARY
+
+@app.post("/scan")
+async def scan(request: ScanRequest):
+    all_results_by_target = {}
+    final_dictionary = prepare_dictionary(request)
     
     try:
         for target_url_item in request.target_urls:
@@ -72,14 +69,13 @@ async def scan(request: ScanRequest):
                 mode=request.mode,
                 exclusions=request.exclusions,
                 respect_robots_txt=request.respect_robots_txt,
-                session_cookies_string=request.session_cookies_string # ADDED
+                session_cookies_string=request.session_cookies_string
             )
-            # scanner.run() now returns a dict: {"directories": {...}, "server_info": {...}}
             result_item_data = scanner.run(max_depth=request.max_depth)
             all_results_by_target[target_url_item] = result_item_data
         
         return {"result": all_results_by_target}
-    except HTTPException as http_exc: # 이미 HTTPException인 경우 그대로 전달
+    except HTTPException as http_exc:
         raise http_exc
     except Exception as e:
         print(f"Critical error during scan process for request {request.target_urls}: {e}", file=sys.stderr)
