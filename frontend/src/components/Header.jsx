@@ -1,83 +1,9 @@
-import React, { useEffect } from "react";
+import React from "react";
 import styles from "../styles/Header.module.css";
+import useBuyMeACoffee from "../hooks/useBuyMeACoffee";
 
 const Header = () => {
-  useEffect(() => {
-    const loadBuyMeACoffeeScript = () => {
-      // 기존 스크립트 정리
-      const existingScript = document.querySelector(
-        'script[src*="buymeacoffee"]'
-      );
-      if (existingScript) existingScript.remove();
-
-      // 기존 버튼 정리
-      const existingButton = document.getElementById("bmc-wbtn");
-      if (existingButton) existingButton.innerHTML = "";
-
-      // 새 스크립트 생성
-      const script = document.createElement("script");
-      script.src = "https://cdnjs.buymeacoffee.com/1.0.0/button.prod.min.js";
-
-      const attributes = {
-        "data-name": "bmc-button",
-        "data-slug": "hank1245",
-        "data-color": "#FFDD00",
-        "data-emoji": "",
-        "data-font": "Cookie",
-        "data-text": "Buy me a coffee",
-        "data-outline-color": "#000000",
-        "data-font-color": "#000000",
-        "data-coffee-color": "#ffffff",
-      };
-
-      Object.entries(attributes).forEach(([key, value]) => {
-        script.setAttribute(key, value);
-      });
-
-      script.onload = () => {
-        // 로딩 완료 후 잠시 대기하여 BMC 버튼이 생성되도록 함
-        setTimeout(() => {
-          const htmlButton = document.querySelector(`.${styles.bmcLink}`);
-          const scriptButton = document.getElementById("bmc-wbtn");
-
-          if (scriptButton && scriptButton.children.length > 0) {
-            // BMC 스크립트 버튼이 성공적으로 로드됨
-            if (htmlButton) htmlButton.style.display = "none";
-            scriptButton.style.display = "block";
-            scriptButton.style.opacity = "1";
-            scriptButton.classList.add("loaded");
-          } else {
-            // BMC 스크립트 버튼이 로드되지 않음, fallback 유지
-            if (htmlButton) htmlButton.style.display = "flex";
-          }
-        }, 200);
-      };
-
-      script.onerror = () => {
-        // 스크립트 로딩 실패 시 HTML fallback 유지
-        const htmlButton = document.querySelector(`.${styles.bmcLink}`);
-        if (htmlButton) {
-          htmlButton.style.display = "flex";
-        }
-      };
-
-      document.head.appendChild(script);
-    };
-
-    // 즉시 실행하되, DOM이 준비된 후
-    if (document.readyState === "loading") {
-      document.addEventListener("DOMContentLoaded", loadBuyMeACoffeeScript);
-    } else {
-      loadBuyMeACoffeeScript();
-    }
-
-    return () => {
-      const existingScript = document.querySelector(
-        'script[src*="buymeacoffee"]'
-      );
-      if (existingScript) existingScript.remove();
-    };
-  }, []);
+  useBuyMeACoffee(styles);
 
   const linkData = [
     {

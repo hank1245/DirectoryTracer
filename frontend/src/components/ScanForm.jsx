@@ -10,7 +10,7 @@ const HelpModal = React.lazy(() =>
   )
 );
 
-const ScanForm = ({ onScan }) => {
+const ScanForm = ({ onScan, isLoading = false }) => {
   const [targetUrlsInput, setTargetUrlsInput] = useState("");
   const [mode, setMode] = useState("normal");
   const [exclusions, setExclusions] = useState("");
@@ -211,8 +211,10 @@ const ScanForm = ({ onScan }) => {
           className={styles.scanButton}
           onMouseEnter={prefetchResultsUI}
           onFocus={prefetchResultsUI}
+          disabled={isLoading}
         >
-          <span className={styles.icon}>🔍</span> Start Scan
+          <span className={styles.icon}>🔍</span>{" "}
+          {isLoading ? "Scanning..." : "Start Scan"}
         </button>
       </form>
     </>

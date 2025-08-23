@@ -1,6 +1,8 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo, useCallback } from "react";
 import { getDefaultDictionary } from "../api";
 import styles from "../styles/DictionaryEditor.module.css";
+import DictionaryItem from "./dictionary/DictionaryItem";
+import DictionaryInputRow from "./dictionary/DictionaryInputRow";
 
 const DictionaryEditor = ({ onChange }) => {
   const [dictionaryItems, setDictionaryItems] = useState([]);
@@ -16,7 +18,7 @@ const DictionaryEditor = ({ onChange }) => {
   }, [useDefaultDict]);
 
   // Add item
-  const handleAddItem = () => {
+  const handleAddItem = useCallback(() => {
     if (newItem.trim()) {
       // Check if path has / at the end
       const formattedItem = newItem.trim().endsWith("/")
@@ -43,27 +45,30 @@ const DictionaryEditor = ({ onChange }) => {
         alert("This item already exists in the list.");
       }
     }
-  };
+  }, [newItem, dictionaryItems, onChange, useDefaultDict]);
 
   // Remove item
-  const handleRemoveItem = (item) => {
-    const updatedItems = dictionaryItems.filter((i) => i !== item);
-    setDictionaryItems(updatedItems);
+  const handleRemoveItem = useCallback(
+    (item) => {
+      const updatedItems = dictionaryItems.filter((i) => i !== item);
+      setDictionaryItems(updatedItems);
 
-    // Notify parent component of changes
-    const removeOperation = {
-      type: "remove",
-      paths: [item],
-    };
+      // Notify parent component of changes
+      const removeOperation = {
+        type: "remove",
+        paths: [item],
+      };
 
-    onChange({
-      operations: [removeOperation],
-      useDefault: useDefaultDict,
-    });
-  };
+      onChange({
+        operations: [removeOperation],
+        useDefault: useDefaultDict,
+      });
+    },
+    [dictionaryItems, onChange, useDefaultDict]
+  );
 
   // Toggle default dictionary usage
-  const handleDefaultToggle = () => {
+  const handleDefaultToggle = useCallback(() => {
     const newValue = !useDefaultDict;
     setUseDefaultDict(newValue);
 
@@ -80,10 +85,13 @@ const DictionaryEditor = ({ onChange }) => {
       operations: [],
       useDefault: newValue,
     });
-  };
+  }, [useDefaultDict, onChange]);
 
   // Calculate number of items to display
-  const visibleItems = showAll ? dictionaryItems : dictionaryItems.slice(0, 10);
+  const visibleItems = useMemo(
+    () => (showAll ? dictionaryItems : dictionaryItems.slice(0, 10)),
+    [showAll, dictionaryItems]
+  );
 
   return (
     <div className={styles.dictionaryEditor}>
@@ -105,21 +113,14 @@ const DictionaryEditor = ({ onChange }) => {
       </div>
 
       <div className={styles.dictionaryInputGroup}>
-        <input
-          type="text"
+        <DictionaryInputRow
           value={newItem}
-          onChange={(e) => setNewItem(e.target.value)}
+          onChange={setNewItem}
+          onAdd={handleAddItem}
           placeholder="Directory path to add (e.g., admin/)"
-          className={styles.formControl}
+          inputClass={styles.formControl}
+          buttonClass={`${styles.btn} ${styles.btnSecondary}`}
         />
-        <button
-          type="button"
-          onClick={handleAddItem}
-          className={`${styles.btn} ${styles.btnSecondary}`}
-          disabled={!newItem.trim()}
-        >
-          Add
-        </button>
       </div>
 
       <div className={styles.dictionaryList}>
@@ -147,18 +148,14 @@ const DictionaryEditor = ({ onChange }) => {
 
         <div className={styles.dictionaryItems}>
           {visibleItems.length > 0 ? (
-            visibleItems.map((item, index) => (
-              <div key={index} className={styles.dictionaryItem}>
-                <span>{item}</span>
-                <button
-                  type="button"
-                  onClick={() => handleRemoveItem(item)}
-                  className={styles.btnClose}
-                  aria-label="Remove"
-                >
-                  ×
-                </button>
-              </div>
+            visibleItems.map((item) => (
+              <DictionaryItem
+                key={item}
+                item={item}
+                onRemove={handleRemoveItem}
+                className={styles.dictionaryItem}
+                closeButtonClass={styles.btnClose}
+              />
             ))
           ) : (
             <p className={styles.emptyMessage}>Dictionary items are empty.</p>

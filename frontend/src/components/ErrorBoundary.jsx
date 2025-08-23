@@ -1,6 +1,5 @@
 import React from "react";
 import styles from "../styles/App.module.css";
-import Button from "./shared/Button";
 
 export default class ErrorBoundary extends React.Component {
   constructor(props) {
@@ -33,7 +32,7 @@ export default class ErrorBoundary extends React.Component {
             <div className={styles.errorMessage}>
               <h2>Something went wrong.</h2>
               <p>Please try again. If the problem persists, reload the page.</p>
-              <Button onClick={this.handleRetry}>Retry</Button>
+              <button onClick={this.handleRetry}>Retry</button>
             </div>
           </main>
         </div>

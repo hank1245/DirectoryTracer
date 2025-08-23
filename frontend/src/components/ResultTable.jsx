@@ -8,10 +8,9 @@ const ResultTable = ({ results }) => {
   const [statusFilter, setStatusFilter] = useState("ALL_SUCCESSFUL_AND_API");
 
   const processedEntries = useMemo(() => {
-    if (!results || Object.keys(results).length === 0) {
-      return [];
-    }
-    return Object.entries(results);
+    return results && Object.keys(results).length > 0
+      ? Object.entries(results)
+      : [];
   }, [results]);
 
   // 정렬 및 필터링 로직
@@ -99,15 +98,17 @@ const ResultTable = ({ results }) => {
             safeGet(infoB, "content_length", 0);
           break;
         case "listing":
-          const listingA = safeGet(infoA, "directory_listing", false);
-          const listingB = safeGet(infoB, "directory_listing", false);
-          if (safeGet(infoA, "source", "unknown") === "js_api")
-            comparison = -1; // API는 항상 아래로 (또는 별도 처리)
-          else if (safeGet(infoB, "source", "unknown") === "js_api")
-            comparison = 1;
-          else if (listingA === listingB) comparison = 0;
-          else if (listingA) comparison = 1;
-          else comparison = -1;
+          {
+            const listingA = safeGet(infoA, "directory_listing", false);
+            const listingB = safeGet(infoB, "directory_listing", false);
+            if (safeGet(infoA, "source", "unknown") === "js_api")
+              comparison = -1;
+            else if (safeGet(infoB, "source", "unknown") === "js_api")
+              comparison = 1;
+            else if (listingA === listingB) comparison = 0;
+            else if (listingA) comparison = 1;
+            else comparison = -1;
+          }
           break;
         case "source":
           comparison = String(
@@ -190,13 +191,13 @@ const ResultTable = ({ results }) => {
       case "initial":
         return "Initial Scan";
       case "crawl":
-        return "Crawled Page Scan";
+        return "Crawled Page";
       case "js_api":
         return "JS API Path";
       case "js_api_base":
-        return "JS API Base";
+        return "JS API";
       case "target_base":
-        return "Target Base URL";
+        return "Target";
       default:
         return source || "Unknown";
     }
@@ -211,6 +212,7 @@ const ResultTable = ({ results }) => {
           value={statusFilter}
           onChange={(e) => setStatusFilter(e.target.value)}
           className={styles.filterSelect}
+          aria-label="Filter results"
         >
           {filterOptions.map((option) => (
             <option key={option.value} value={option.value}>
