@@ -189,20 +189,19 @@ const ResultTable = ({ results }) => {
   const getSourceDisplayName = (source) => {
     switch (source) {
       case "initial":
-        return "Initial Scan";
+        return "Initial";
       case "crawl":
-        return "Crawled Page";
+        return "Crawl";
       case "js_api":
-        return "JS API Path";
-      case "js_api_base":
         return "JS API";
+      case "js_api_base":
+        return "JS Base";
       case "target_base":
         return "Target";
       default:
         return source || "Unknown";
     }
   };
-
   return (
     <div className={styles.resultTableContainer}>
       <div className={styles.filterControls}>
