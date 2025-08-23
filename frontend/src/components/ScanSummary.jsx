@@ -50,4 +50,4 @@ const ScanSummary = ({ summary, onGenerateReport }) => {
   );
 };
 
-export default ScanSummary;
+export default React.memo(ScanSummary);
