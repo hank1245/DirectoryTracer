@@ -1,9 +1,16 @@
-import React, { useState } from "react";
+import React, { useState, Suspense, useCallback } from "react";
 import DictionaryEditor from "./DictionaryEditor";
-import HelpModal from "./HelpModal";
 import styles from "../styles/ScanForm.module.css";
+import { usePrefetch } from "../hooks/usePrefetch";
+const HelpModal = React.lazy(() =>
+  import(
+    /* webpackChunkName: "help-modal" */
+    /* webpackPrefetch: true */
+    "./HelpModal"
+  )
+);
 
-const ScanForm = ({ onScan }) => {
+const ScanForm = ({ onScan, isLoading = false }) => {
   const [targetUrlsInput, setTargetUrlsInput] = useState("");
   const [mode, setMode] = useState("normal");
   const [exclusions, setExclusions] = useState("");
@@ -49,9 +56,33 @@ const ScanForm = ({ onScan }) => {
     );
   };
 
-  const toggleHelp = () => {
-    setShowHelp(!showHelp);
-  };
+  const toggleHelp = useCallback(() => {
+    setShowHelp((v) => !v);
+  }, []);
+
+  const prefetchHelp = usePrefetch([
+    () =>
+      import(
+        /* webpackChunkName: "help-modal" */
+        /* webpackPrefetch: true */
+        "./HelpModal"
+      ),
+  ]);
+
+  const prefetchResultsUI = usePrefetch([
+    () =>
+      import(
+        /* webpackChunkName: "result-table" */
+        /* webpackPrefetch: true */
+        "./ResultTable"
+      ),
+    () =>
+      import(
+        /* webpackChunkName: "scan-summary" */
+        /* webpackPrefetch: true */
+        "./ScanSummary"
+      ),
+  ]);
 
   const handleDictionaryChange = (config) => {
     setDictionaryConfig(config);
@@ -59,7 +90,9 @@ const ScanForm = ({ onScan }) => {
 
   return (
     <>
-      <HelpModal isOpen={showHelp} onClose={toggleHelp} />
+      <Suspense fallback={null}>
+        <HelpModal isOpen={showHelp} onClose={toggleHelp} />
+      </Suspense>
 
       <form onSubmit={handleSubmit} className={styles.scanForm}>
         <div className={styles.formHeader}>
@@ -67,6 +100,8 @@ const ScanForm = ({ onScan }) => {
             type="button"
             className={styles.helpButton}
             onClick={toggleHelp}
+            onMouseEnter={prefetchHelp}
+            onFocus={prefetchHelp}
           >
             Help
           </button>
@@ -171,8 +206,15 @@ const ScanForm = ({ onScan }) => {
           />
         </div>
 
-        <button type="submit" className={styles.scanButton}>
-          <span className={styles.icon}>🔍</span> Start Scan
+        <button
+          type="submit"
+          className={styles.scanButton}
+          onMouseEnter={prefetchResultsUI}
+          onFocus={prefetchResultsUI}
+          disabled={isLoading}
+        >
+          <span className={styles.icon}>🔍</span>{" "}
+          {isLoading ? "Scanning..." : "Start Scan"}
         </button>
       </form>
     </>

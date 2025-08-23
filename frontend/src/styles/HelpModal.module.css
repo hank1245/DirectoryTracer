@@ -1,54 +1,181 @@
-.helpOverlay {
+.modalOverlay {
   position: fixed;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: rgba(0, 0, 0, 0.5);
+  background: rgba(0, 0, 0, 0.8);
   display: flex;
   align-items: center;
   justify-content: center;
   z-index: 1000;
+  padding: 1rem;
+}
+
+.modalContent {
+  background: var(--bg-card);
+  border: 1px solid var(--border-primary);
+  border-radius: 8px;
+  padding: 0;
+  max-width: 800px;
+  max-height: 80vh;
+  overflow: hidden;
+  position: relative;
+  box-shadow: var(--shadow-secondary);
+  color: var(--text-primary);
+  font-family: "Courier New", monospace;
+}
+
+.modalHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.5rem 2rem;
+  border-bottom: 1px solid var(--border-primary);
+  background: var(--bg-secondary);
+}
+
+.modalTitle {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--accent-primary);
+  margin: 0;
+  text-shadow: 0 0 5px rgba(0, 204, 51, 0.3);
+}
+
+.closeButton {
+  background: none;
+  border: none;
+  font-size: 2rem;
+  cursor: pointer;
+  padding: 0.25rem;
+  color: var(--text-muted);
+  transition: color var(--transition-fast);
+  width: 2.5rem;
+  height: 2.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  line-height: 1;
+}
+
+.closeButton:hover {
+  color: var(--accent-primary);
+  background: var(--bg-hover);
 }
 
 .helpContent {
-  background-color: #fff;
-  width: 90%;
-  max-width: 600px;
-  border-radius: 8px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   padding: 2rem;
-  position: relative;
-  max-height: 80vh;
   overflow-y: auto;
-}
-
-.helpClose {
-  position: absolute;
-  top: 1rem;
-  right: 1.5rem;
-  background: none;
-  border: none;
-  font-size: 1.5rem;
-  cursor: pointer;
-  color: #6c757d;
-}
-
-.helpContent h3 {
-  margin-top: 0;
-  color: black;
+  max-height: calc(80vh - 120px);
+  color: var(--text-primary);
+  line-height: 1.6;
 }
 
 .helpSection {
-  margin-bottom: 1.5rem;
-  color: black;
+  margin-bottom: 2rem;
 }
 
-.helpSection h4 {
-  margin-bottom: 0.5rem;
+.helpSection:last-child {
+  margin-bottom: 0;
+}
+
+.helpSection h3 {
+  color: var(--accent-primary);
+  font-size: 1.2rem;
+  margin: 0 0 1rem 0;
+  border-bottom: 1px solid var(--border-secondary);
+  padding-bottom: 0.5rem;
 }
 
 .helpSection p {
-  margin: 0.25rem 0;
-  line-height: 1.5;
+  margin: 0.75rem 0;
+  color: var(--text-secondary);
+}
+
+.helpSection ol,
+.helpSection ul {
+  margin: 0.75rem 0;
+  padding-left: 1.5rem;
+  color: var(--text-secondary);
+}
+
+.helpSection li {
+  margin: 0.5rem 0;
+}
+
+.helpSection code {
+  background: var(--bg-secondary);
+  color: var(--accent-primary);
+  padding: 0.2rem 0.4rem;
+  border-radius: 3px;
+  font-family: "Courier New", monospace;
+  font-size: 0.9rem;
+  border: 1px solid var(--border-primary);
+}
+
+.helpSection strong {
+  color: var(--accent-primary);
+  font-weight: 600;
+}
+
+/* 스크롤바 스타일링 */
+.helpContent::-webkit-scrollbar {
+  width: 6px;
+}
+
+.helpContent::-webkit-scrollbar-track {
+  background: var(--bg-secondary);
+  border-radius: 3px;
+}
+
+.helpContent::-webkit-scrollbar-thumb {
+  background: var(--accent-primary);
+  border-radius: 3px;
+}
+
+.helpContent::-webkit-scrollbar-thumb:hover {
+  background: var(--accent-primary-light);
+}
+
+/* 반응형 */
+@media (max-width: 768px) {
+  .modalContent {
+    margin: 1rem;
+    max-height: 85vh;
+  }
+
+  .modalHeader {
+    padding: 1rem 1.5rem;
+  }
+
+  .modalTitle {
+    font-size: 1.25rem;
+  }
+
+  .helpContent {
+    padding: 1.5rem;
+    max-height: calc(85vh - 100px);
+  }
+
+  .helpSection h3 {
+    font-size: 1.1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .modalContent {
+    margin: 0.5rem;
+    max-height: 90vh;
+  }
+
+  .modalHeader {
+    padding: 1rem;
+  }
+
+  .helpContent {
+    padding: 1rem;
+    max-height: calc(90vh - 80px);
+  }
 }

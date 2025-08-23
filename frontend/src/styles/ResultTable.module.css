@@ -9,8 +9,11 @@
   width: 100%;
   border-collapse: collapse;
   background: var(--bg-card);
-  font-size: 0.9rem;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: var(--shadow-secondary);
   font-family: "Courier New", monospace;
+  table-layout: fixed; /* 고정 레이아웃으로 변경 */
 }
 
 .resultTable thead {
@@ -56,10 +59,41 @@
 }
 
 .resultTable td {
-  padding: 0.75rem;
+  padding: 0.75rem 0.5rem; /* 좌우 패딩 줄임 */
   border-bottom: 1px solid var(--border-primary);
   vertical-align: middle;
   background: var(--bg-card);
+}
+
+/* 컬럼 너비 지정 */
+.resultTable th:nth-child(1), /* URL */
+.resultTable td:nth-child(1) {
+  width: 35%;
+}
+
+.resultTable th:nth-child(2), /* Status */
+.resultTable td:nth-child(2) {
+  width: 8%;
+}
+
+.resultTable th:nth-child(3), /* Length */
+.resultTable td:nth-child(3) {
+  width: 10%;
+}
+
+.resultTable th:nth-child(4), /* Dir. Listing */
+.resultTable td:nth-child(4) {
+  width: 12%;
+}
+
+.resultTable th:nth-child(5), /* Source */
+.resultTable td:nth-child(5) {
+  width: 15%;
+}
+
+.resultTable th:nth-child(6), /* Note */
+.resultTable td:nth-child(6) {
+  width: 20%;
 }
 
 .resultTable tbody tr:hover {
@@ -89,13 +123,16 @@
 }
 
 .badge {
-  padding: 0.25rem 0.5rem;
-  border-radius: 4px;
-  font-size: 0.75rem;
+  padding: 0.2rem 0.4rem; /* 패딩 줄임 */
+  border-radius: 3px;
+  font-size: 0.7rem; /* 폰트 크기 줄임 */
   font-weight: 600;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
+  letter-spacing: 0.3px;
   border: 1px solid;
+  white-space: nowrap; /* 줄바꿈 방지 */
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .badgeDanger {
@@ -179,7 +216,19 @@
     padding: 0.5rem 0.25rem;
   }
 
-  .urlCell {
-    max-width: 200px;
+  /* 모바일에서 컬럼 비율 조정 */
+  .resultTable th:nth-child(1),
+  .resultTable td:nth-child(1) {
+    width: 40%;
+  }
+
+  .resultTable th:nth-child(5),
+  .resultTable td:nth-child(5) {
+    width: 18%;
+  }
+
+  .resultTable th:nth-child(6),
+  .resultTable td:nth-child(6) {
+    width: 15%;
   }
 }

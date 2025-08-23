@@ -6,47 +6,47 @@
   --bg-card: #1e1e1e;
   --bg-hover: #252525;
 
-  /* Matrix Green */
-  --accent-primary: #00ff41;
-  --accent-primary-dark: #00cc33;
-  --accent-primary-light: #66ff80;
+  /* Matrix Green - 톤다운 */
+  --accent-primary: #00cc33;
+  --accent-primary-dark: #00aa2a;
+  --accent-primary-light: #33dd55;
 
-  /* Cyber Blue */
-  --accent-secondary: #00d4ff;
-  --accent-secondary-dark: #0099cc;
+  /* Cyber Blue - 톤다운 */
+  --accent-secondary: #0099cc;
+  --accent-secondary-dark: #0077aa;
 
   /* Warning/Alert Colors */
   --warning: #ff6b00;
   --danger: #ff0040;
-  --success: #00ff41;
+  --success: #00cc33;
 
   /* Text Colors */
   --text-primary: #e0e0e0;
   --text-secondary: #d0cccc;
-  --text-muted: #aeabab;
-  --text-accent: #00ff41;
+  --text-muted: #999999;
+  --text-accent: #00cc33;
   --text-inverse: #0a0a0a;
 
   /* Border Colors */
   --border-primary: #333333;
   --border-secondary: #404040;
-  --border-accent: #00ff41;
+  --border-accent: #00cc33;
 
   /* Status Colors */
-  --status-200: #00ff41;
+  --status-200: #00cc33;
   --status-403: #ff6b00;
   --status-404: #ff0040;
   --status-error: #ff0040;
   --status-neutral: #808080;
 
-  /* Shadows */
-  --shadow-primary: 0 0 20px rgba(0, 255, 65, 0.3);
-  --shadow-secondary: 0 4px 20px rgba(0, 0, 0, 0.5);
-  --shadow-glow: 0 0 10px rgba(0, 255, 65, 0.5);
+  /* Shadows - 톤다운 */
+  --shadow-primary: 0 2px 8px rgba(0, 0, 0, 0.3);
+  --shadow-secondary: 0 4px 12px rgba(0, 0, 0, 0.4);
+  --shadow-glow: 0 0 8px rgba(0, 204, 51, 0.2);
 
-  /* Gradients */
-  --gradient-primary: linear-gradient(135deg, #00ff41 0%, #00d4ff 100%);
-  --gradient-dark: linear-gradient(135deg, #1a1a1a 0%, #0a0a0a 100%);
+  /* Gradients - 제거하고 단색으로 */
+  --gradient-primary: #00cc33;
+  --gradient-dark: #151515;
 
   /* Animations */
   --transition-fast: 0.2s ease;
@@ -54,27 +54,16 @@
   --transition-slow: 0.5s ease;
 }
 
-/* Cyberpunk glow effect */
+/* Cyberpunk glow effect - 톤다운 */
 .cyber-glow {
-  text-shadow: 0 0 10px var(--accent-primary);
+  text-shadow: 0 0 5px var(--accent-primary);
 }
 
 .terminal-font {
   font-family: "Courier New", "Monaco", "Consolas", monospace;
 }
 
-/* Matrix animation for backgrounds */
-@keyframes matrix-rain {
-  0% {
-    transform: translateY(-100vh);
-    opacity: 1;
-  }
-  100% {
-    transform: translateY(100vh);
-    opacity: 0;
-  }
-}
-
+/* 애니메이션 제거 */
 @keyframes cyber-pulse {
   0%,
   100% {
@@ -82,15 +71,5 @@
   }
   50% {
     box-shadow: var(--shadow-glow);
-  }
-}
-
-/* Scanning animation */
-@keyframes scan-line {
-  0% {
-    transform: translateX(-100%);
-  }
-  100% {
-    transform: translateX(100%);
   }
 }

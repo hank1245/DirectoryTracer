@@ -6,7 +6,7 @@ services:
       context: ./backend
     ports:
       - "8000:8000"
-    container_name: directory_scanner_backend
+    container_name: directory_tracer_backend
     depends_on:
       - torproxy
     networks:
@@ -17,7 +17,7 @@ services:
       context: ./frontend
     ports:
       - "3000:3000"
-    container_name: directory_scanner_frontend
+    container_name: directory_tracer_frontend
     environment:
       - REACT_APP_API_URL=http://localhost:8000 # localhost로 변경
     depends_on:
@@ -27,7 +27,7 @@ services:
 
   torproxy:
     image: dperson/torproxy
-    container_name: directory_scanner_torproxy
+    container_name: directory_tracer_torproxy
     ports:
       - "9050:9050"
     networks:

@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useCallback } from "react";
 import styles from "../styles/ResultTable.module.css"; // CSS 모듈 경로 확인
 
 const ResultTable = ({ results }) => {
@@ -8,10 +8,9 @@ const ResultTable = ({ results }) => {
   const [statusFilter, setStatusFilter] = useState("ALL_SUCCESSFUL_AND_API");
 
   const processedEntries = useMemo(() => {
-    if (!results || Object.keys(results).length === 0) {
-      return [];
-    }
-    return Object.entries(results);
+    return results && Object.keys(results).length > 0
+      ? Object.entries(results)
+      : [];
   }, [results]);
 
   // 정렬 및 필터링 로직
@@ -99,15 +98,17 @@ const ResultTable = ({ results }) => {
             safeGet(infoB, "content_length", 0);
           break;
         case "listing":
-          const listingA = safeGet(infoA, "directory_listing", false);
-          const listingB = safeGet(infoB, "directory_listing", false);
-          if (safeGet(infoA, "source", "unknown") === "js_api")
-            comparison = -1; // API는 항상 아래로 (또는 별도 처리)
-          else if (safeGet(infoB, "source", "unknown") === "js_api")
-            comparison = 1;
-          else if (listingA === listingB) comparison = 0;
-          else if (listingA) comparison = 1;
-          else comparison = -1;
+          {
+            const listingA = safeGet(infoA, "directory_listing", false);
+            const listingB = safeGet(infoB, "directory_listing", false);
+            if (safeGet(infoA, "source", "unknown") === "js_api")
+              comparison = -1;
+            else if (safeGet(infoB, "source", "unknown") === "js_api")
+              comparison = 1;
+            else if (listingA === listingB) comparison = 0;
+            else if (listingA) comparison = 1;
+            else comparison = -1;
+          }
           break;
         case "source":
           comparison = String(
@@ -122,14 +123,17 @@ const ResultTable = ({ results }) => {
   }, [processedEntries, statusFilter, sortField, sortDirection]);
 
   // 정렬 핸들러 함수
-  const handleSort = (field) => {
-    if (sortField === field) {
-      setSortDirection(sortDirection === "asc" ? "desc" : "asc");
-    } else {
-      setSortField(field);
-      setSortDirection("asc");
-    }
-  };
+  const handleSort = useCallback(
+    (field) => {
+      if (sortField === field) {
+        setSortDirection(sortDirection === "asc" ? "desc" : "asc");
+      } else {
+        setSortField(field);
+        setSortDirection("asc");
+      }
+    },
+    [sortField, sortDirection]
+  );
 
   // 상태 코드 스타일 반환 함수
   const getStatusStyle = (codeStr) => {
@@ -148,6 +152,25 @@ const ResultTable = ({ results }) => {
     return {}; // Default
   };
 
+  // 필터 옵션 정의 (hook must be before early returns)
+  const filterOptions = useMemo(
+    () => [
+      {
+        value: "ALL_SUCCESSFUL_AND_API",
+        label: "Found (Dirs & APIs: 200, 403)",
+      },
+      { value: "FOUND_API_ENDPOINTS", label: "Found API Endpoints (200, 403)" },
+      {
+        value: "ALL_SUCCESSFUL_NO_API",
+        label: "Found Directories (200, 403, No APIs)",
+      },
+      { value: "ALL", label: "All Attempted Paths" },
+      { value: "EXCLUDED", label: "Excluded Paths" },
+      { value: "NO_RESPONSE_OR_ERROR", label: "Errors/No Response" },
+    ],
+    []
+  );
+
   // 초기 결과가 없을 때 표시
   if (processedEntries.length === 0) {
     return (
@@ -161,42 +184,24 @@ const ResultTable = ({ results }) => {
     );
   }
 
-  // 필터 옵션 정의
-  const filterOptions = [
-    { value: "ALL_SUCCESSFUL_AND_API", label: "Found (Dirs & APIs: 200, 403)" },
-    { value: "FOUND_API_ENDPOINTS", label: "Found API Endpoints (200, 403)" },
-    {
-      value: "ALL_SUCCESSFUL_NO_API",
-      label: "Found Directories (200, 403, No APIs)",
-    },
-    { value: "ALL", label: "All Attempted Paths" },
-    // { value: "200", label: "Status 200 Only" }, // 삭제
-    // { value: "403", label: "Status 403 Only" }, // 삭제
-    // {
-    //   value: "JS_API_ALL_ATTEMPTED", // 삭제
-    //   label: "All Attempted API Paths (incl. 404)",
-    // },
-    { value: "EXCLUDED", label: "Excluded Paths" },
-    { value: "NO_RESPONSE_OR_ERROR", label: "Errors/No Response" },
-  ];
+  // filterOptions used below
 
   const getSourceDisplayName = (source) => {
     switch (source) {
       case "initial":
-        return "Initial Scan";
+        return "Initial";
       case "crawl":
-        return "Crawled Page Scan";
+        return "Crawl";
       case "js_api":
-        return "JS API Path";
+        return "JS API";
       case "js_api_base":
-        return "JS API Base";
+        return "JS Base";
       case "target_base":
-        return "Target Base URL";
+        return "Target";
       default:
         return source || "Unknown";
     }
   };
-
   return (
     <div className={styles.resultTableContainer}>
       <div className={styles.filterControls}>
@@ -206,6 +211,7 @@ const ResultTable = ({ results }) => {
           value={statusFilter}
           onChange={(e) => setStatusFilter(e.target.value)}
           className={styles.filterSelect}
+          aria-label="Filter results"
         >
           {filterOptions.map((option) => (
             <option key={option.value} value={option.value}>
@@ -314,4 +320,4 @@ const ResultTable = ({ results }) => {
   );
 };
 
-export default ResultTable;
+export default React.memo(ResultTable);
