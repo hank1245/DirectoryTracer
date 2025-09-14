@@ -230,49 +230,60 @@ const ResultTable = ({ results }) => {
 
       {filteredAndSortedEntries.length > 0 && (
         <table className={styles.resultTable}>
+          <caption className="sr-only">Discovered paths and their server responses</caption>
           <thead>
             <tr>
-              <th onClick={() => handleSort("url")}>
-                URL
-                {sortField === "url" && (
-                  <span className={styles.sortIcon}>
-                    {sortDirection === "asc" ? "▲" : "▼"}
-                  </span>
-                )}
+              <th scope="col" aria-sort={sortField === "url" ? (sortDirection === "asc" ? "ascending" : "descending") : "none"}>
+                <button type="button" onClick={() => handleSort("url")}>
+                  URL
+                  {sortField === "url" && (
+                    <span className={styles.sortIcon} aria-hidden="true">
+                      {sortDirection === "asc" ? "▲" : "▼"}
+                    </span>
+                  )}
+                </button>
               </th>
-              <th onClick={() => handleSort("status")}>
-                Status
-                {sortField === "status" && (
-                  <span className={styles.sortIcon}>
-                    {sortDirection === "asc" ? "▲" : "▼"}
-                  </span>
-                )}
+              <th scope="col" aria-sort={sortField === "status" ? (sortDirection === "asc" ? "ascending" : "descending") : "none"}>
+                <button type="button" onClick={() => handleSort("status")}>
+                  Status
+                  {sortField === "status" && (
+                    <span className={styles.sortIcon} aria-hidden="true">
+                      {sortDirection === "asc" ? "▲" : "▼"}
+                    </span>
+                  )}
+                </button>
               </th>
-              <th onClick={() => handleSort("length")}>
-                Length
-                {sortField === "length" && (
-                  <span className={styles.sortIcon}>
-                    {sortDirection === "asc" ? "▲" : "▼"}
-                  </span>
-                )}
+              <th scope="col" aria-sort={sortField === "length" ? (sortDirection === "asc" ? "ascending" : "descending") : "none"}>
+                <button type="button" onClick={() => handleSort("length")}>
+                  Length
+                  {sortField === "length" && (
+                    <span className={styles.sortIcon} aria-hidden="true">
+                      {sortDirection === "asc" ? "▲" : "▼"}
+                    </span>
+                  )}
+                </button>
               </th>
-              <th onClick={() => handleSort("listing")}>
-                Dir. Listing
-                {sortField === "listing" && (
-                  <span className={styles.sortIcon}>
-                    {sortDirection === "asc" ? "▲" : "▼"}
-                  </span>
-                )}
+              <th scope="col" aria-sort={sortField === "listing" ? (sortDirection === "asc" ? "ascending" : "descending") : "none"}>
+                <button type="button" onClick={() => handleSort("listing")}>
+                  Dir. Listing
+                  {sortField === "listing" && (
+                    <span className={styles.sortIcon} aria-hidden="true">
+                      {sortDirection === "asc" ? "▲" : "▼"}
+                    </span>
+                  )}
+                </button>
               </th>
-              <th onClick={() => handleSort("source")}>
-                Source
-                {sortField === "source" && (
-                  <span className={styles.sortIcon}>
-                    {sortDirection === "asc" ? "▲" : "▼"}
-                  </span>
-                )}
+              <th scope="col" aria-sort={sortField === "source" ? (sortDirection === "asc" ? "ascending" : "descending") : "none"}>
+                <button type="button" onClick={() => handleSort("source")}>
+                  Source
+                  {sortField === "source" && (
+                    <span className={styles.sortIcon} aria-hidden="true">
+                      {sortDirection === "asc" ? "▲" : "▼"}
+                    </span>
+                  )}
+                </button>
               </th>
-              <th>Note</th>
+              <th scope="col">Note</th>
             </tr>
           </thead>
           <tbody>

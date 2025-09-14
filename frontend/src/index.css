@@ -11,6 +11,22 @@ body {
   overflow-x: hidden;
 }
 
+/* Accessible skip link */
+.skip-link {
+  position: absolute;
+  top: -40px;
+  left: 0;
+  background: var(--accent-primary);
+  color: var(--text-inverse);
+  padding: 8px 12px;
+  z-index: 1000;
+  border-radius: 4px;
+}
+
+.skip-link:focus {
+  top: 8px;
+}
+
 body::before {
   content: "";
   position: fixed;
@@ -61,4 +77,13 @@ body {
 ::-moz-selection {
   background: var(--accent-primary);
   color: var(--text-inverse);
+}
+
+/* Visually hidden, screen reader accessible */
+.sr-only {
+  position: absolute !important;
+  height: 1px; width: 1px;
+  overflow: hidden;
+  clip: rect(1px, 1px, 1px, 1px);
+  white-space: nowrap;
 }

@@ -115,6 +115,9 @@
   border: 1px solid var(--border-primary); /* #e9ecef에서 변경 */
   border-radius: 4px;
   background-color: var(--bg-secondary); /* white에서 변경 */
+  list-style: none;
+  margin: 0;
+  padding-left: 0;
 }
 
 .dictionaryItem {

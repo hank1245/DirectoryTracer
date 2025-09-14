@@ -62,7 +62,7 @@ export default function ScannerPage() {
       <div className={styles.container}>
         <Header />
 
-        <main>
+        <main id="main-content" role="main" tabIndex="-1" aria-busy={loading || undefined}>
           <FormSection
             title="Scan Configuration"
             description="Configure the options below and start scanning."
@@ -72,7 +72,11 @@ export default function ScannerPage() {
           {loading && (
             <LoadingSpinner message="Scanning in progress. Please wait..." />
           )}
-          {scanError && <div className={styles.errorMessage}>{scanError}</div>}
+          {scanError && (
+            <div className={styles.errorMessage} role="alert" aria-live="assertive">
+              {scanError}
+            </div>
+          )}
           {!loading && !scanError && (
             <>
               {scanSummary && Object.keys(scanSummary).length > 0 && (
@@ -87,8 +91,8 @@ export default function ScannerPage() {
               {scanMetadata &&
                 scanMetadata.serverInfos &&
                 scanMetadata.serverInfos.length > 0 && (
-                  <div className={styles.serverInfoSection}>
-                    <h3>Server Information:</h3>
+                  <section className={styles.serverInfoSection} aria-labelledby="server-info-heading">
+                    <h3 id="server-info-heading">Server Information:</h3>
                     {scanMetadata.serverInfos.map((si, index) => (
                       <div key={index} className={styles.serverInfoItem}>
                         <strong>Target: {si.target}</strong>
@@ -107,7 +111,7 @@ export default function ScannerPage() {
                         </ul>
                       </div>
                     ))}
-                  </div>
+                  </section>
                 )}
 
               {Object.keys(results).length > 0 && (

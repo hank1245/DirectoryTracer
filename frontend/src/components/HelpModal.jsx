@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useRef, useCallback } from "react";
 import styles from "../styles/HelpModal.module.css";
 
 const HelpModal = ({ isOpen, onClose }) => {
@@ -10,11 +10,38 @@ const HelpModal = ({ isOpen, onClose }) => {
     }
   };
 
+  const dialogRef = useRef(null);
+  const onKeyDown = useCallback(
+    (e) => {
+      if (e.key === "Escape") {
+        e.stopPropagation();
+        onClose();
+      }
+    },
+    [onClose]
+  );
+
+  useEffect(() => {
+    // Move focus to dialog for screen readers and keyboard users
+    if (dialogRef.current) {
+      dialogRef.current.focus();
+    }
+  }, []);
+
   return (
-    <div className={styles.modalOverlay} onClick={handleOverlayClick}>
-      <div className={styles.modalContent}>
+    <div className={styles.modalOverlay} onClick={handleOverlayClick} role="presentation">
+      <div
+        id="help-modal"
+        className={styles.modalContent}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="help-modal-title"
+        tabIndex="-1"
+        ref={dialogRef}
+        onKeyDown={onKeyDown}
+      >
         <div className={styles.modalHeader}>
-          <h2 className={styles.modalTitle}>Directory Tracer - Help</h2>
+          <h2 id="help-modal-title" className={styles.modalTitle}>Directory Tracer - Help</h2>
           <button className={styles.closeButton} onClick={onClose}>
             ×
           </button>

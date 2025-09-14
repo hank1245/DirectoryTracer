@@ -25,7 +25,7 @@
   padding: 1rem 0.75rem;
   text-align: left;
   font-weight: 600;
-  cursor: pointer;
+  cursor: default;
   user-select: none;
   position: relative;
   transition: all var(--transition-fast);
@@ -35,6 +35,21 @@
 .resultTable th:hover {
   background: var(--bg-hover);
   color: var(--accent-primary);
+}
+
+/* Make header sort buttons look like plain headers */
+.resultTable th button {
+  all: unset;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.resultTable th button:focus-visible {
+  outline: 2px solid var(--accent-secondary);
+  outline-offset: 2px;
+  border-radius: 2px;
 }
 
 .resultTable th.sorted {

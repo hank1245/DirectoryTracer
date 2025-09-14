@@ -73,3 +73,15 @@
     box-shadow: var(--shadow-glow);
   }
 }
+
+/* Global focus styles for keyboard users */
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible,
+[role="button"]:focus-visible {
+  outline: 3px solid var(--accent-secondary);
+  outline-offset: 2px;
+  box-shadow: 0 0 0 3px rgba(0, 153, 204, 0.2);
+}

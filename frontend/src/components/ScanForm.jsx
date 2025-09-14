@@ -94,7 +94,7 @@ const ScanForm = ({ onScan, isLoading = false }) => {
         <HelpModal isOpen={showHelp} onClose={toggleHelp} />
       </Suspense>
 
-      <form onSubmit={handleSubmit} className={styles.scanForm}>
+      <form onSubmit={handleSubmit} className={styles.scanForm} aria-describedby="scan-form-help">
         <div className={styles.formHeader}>
           <button
             type="button"
@@ -102,6 +102,9 @@ const ScanForm = ({ onScan, isLoading = false }) => {
             onClick={toggleHelp}
             onMouseEnter={prefetchHelp}
             onFocus={prefetchHelp}
+            aria-haspopup="dialog"
+            aria-controls="help-modal"
+            aria-expanded={showHelp}
           >
             Help
           </button>
@@ -110,7 +113,7 @@ const ScanForm = ({ onScan, isLoading = false }) => {
         <div className={styles.formGroup}>
           <label htmlFor="targetUrls">
             <span className={styles.formLabel}>Target URL List</span>
-            <span className={styles.formHint}>Enter one per line</span>
+            <span id="targetUrls-hint" className={styles.formHint}>Enter one per line</span>
           </label>
           <textarea
             id="targetUrls"
@@ -119,13 +122,14 @@ const ScanForm = ({ onScan, isLoading = false }) => {
             onChange={(e) => setTargetUrlsInput(e.target.value)}
             rows="3"
             className={styles.formControl}
+            aria-describedby="targetUrls-hint"
           />
         </div>
 
         <div className={styles.formGroup}>
           <label htmlFor="sessionCookies">
             <span className={styles.formLabel}>Session Cookies (Optional)</span>
-            <span className={styles.formHint}>
+            <span id="sessionCookies-hint" className={styles.formHint}>
               E.g., cookie1=value1; cookie2=value2
             </span>
           </label>
@@ -136,6 +140,7 @@ const ScanForm = ({ onScan, isLoading = false }) => {
             onChange={(e) => setSessionCookies(e.target.value)}
             className={styles.formControl}
             rows="3"
+            aria-describedby="sessionCookies-hint"
           />
         </div>
 
@@ -149,6 +154,7 @@ const ScanForm = ({ onScan, isLoading = false }) => {
               value={mode}
               onChange={(e) => setMode(e.target.value)}
               className={styles.formControl}
+              name="scanMode"
             >
               <option value="normal">Normal</option>
               <option value="darkweb">Darkweb (.onion)</option>
@@ -167,18 +173,21 @@ const ScanForm = ({ onScan, isLoading = false }) => {
               min="0"
               max="5"
               className={styles.formControl}
+              name="maxDepth"
             />
           </div>
 
           <div className={styles.formGroup}>
             <div className={styles.checkboxGroup}>
-              <label className={styles.checkboxLabel}>
-                <input
-                  type="checkbox"
-                  checked={respectRobotsTxt}
-                  onChange={(e) => setRespectRobotsTxt(e.target.checked)}
-                  className={styles.formCheckbox}
-                />
+              <input
+                id="respectRobotsTxt"
+                type="checkbox"
+                checked={respectRobotsTxt}
+                onChange={(e) => setRespectRobotsTxt(e.target.checked)}
+                className={styles.formCheckbox}
+                name="respectRobotsTxt"
+              />
+              <label className={styles.checkboxLabel} htmlFor="respectRobotsTxt">
                 <span>Respect robots.txt rules</span>
               </label>
             </div>
@@ -194,7 +203,7 @@ const ScanForm = ({ onScan, isLoading = false }) => {
         <div className={styles.formGroup}>
           <label htmlFor="exclusions">
             <span className={styles.formLabel}>Domains or URLs to Exclude</span>
-            <span className={styles.formHint}>Enter one per line</span>
+            <span id="exclusions-hint" className={styles.formHint}>Enter one per line</span>
           </label>
           <textarea
             id="exclusions"
@@ -203,6 +212,7 @@ const ScanForm = ({ onScan, isLoading = false }) => {
             onChange={(e) => setExclusions(e.target.value)}
             rows="2"
             className={styles.formControl}
+            aria-describedby="exclusions-hint"
           />
         </div>
 
