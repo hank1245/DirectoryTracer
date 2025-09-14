@@ -13,7 +13,7 @@ const DictionaryItem = React.memo(function DictionaryItem({
         type="button"
         onClick={() => onRemove(item)}
         className={closeButtonClass}
-        aria-label="Remove"
+        aria-label={`Remove ${item}`}
       >
         ×
       </button>

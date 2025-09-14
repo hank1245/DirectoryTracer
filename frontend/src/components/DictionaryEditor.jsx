@@ -101,13 +101,15 @@ const DictionaryEditor = ({ onChange }) => {
       </p>
 
       <div className={styles.checkboxGroup}>
-        <label className={styles.checkboxLabel}>
-          <input
-            type="checkbox"
-            checked={useDefaultDict}
-            onChange={handleDefaultToggle}
-            className={styles.formCheckbox}
-          />
+        <input
+          id="useDefaultDict"
+          type="checkbox"
+          checked={useDefaultDict}
+          onChange={handleDefaultToggle}
+          className={styles.formCheckbox}
+          name="useDefaultDict"
+        />
+        <label className={styles.checkboxLabel} htmlFor="useDefaultDict">
           <span>Use Default Dictionary (Recommended)</span>
         </label>
       </div>
@@ -131,6 +133,8 @@ const DictionaryEditor = ({ onChange }) => {
               type="button"
               onClick={() => setShowAll(true)}
               className={styles.btnLink}
+              aria-controls="dictionary-items"
+              aria-expanded={showAll}
             >
               Show All
             </button>
@@ -140,27 +144,30 @@ const DictionaryEditor = ({ onChange }) => {
               type="button"
               onClick={() => setShowAll(false)}
               className={styles.btnLink}
+              aria-controls="dictionary-items"
+              aria-expanded={showAll}
             >
               Collapse
             </button>
           )}
         </p>
 
-        <div className={styles.dictionaryItems}>
+        <ul id="dictionary-items" className={styles.dictionaryItems} role="list">
           {visibleItems.length > 0 ? (
             visibleItems.map((item) => (
-              <DictionaryItem
-                key={item}
-                item={item}
-                onRemove={handleRemoveItem}
-                className={styles.dictionaryItem}
-                closeButtonClass={styles.btnClose}
-              />
+              <li key={item}>
+                <DictionaryItem
+                  item={item}
+                  onRemove={handleRemoveItem}
+                  className={styles.dictionaryItem}
+                  closeButtonClass={styles.btnClose}
+                />
+              </li>
             ))
           ) : (
             <p className={styles.emptyMessage}>Dictionary items are empty.</p>
           )}
-        </div>
+        </ul>
       </div>
     </div>
   );
