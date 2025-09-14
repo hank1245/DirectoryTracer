@@ -2,31 +2,33 @@ import React, { useEffect, useRef, useCallback } from "react";
 import styles from "../styles/HelpModal.module.css";
 
 const HelpModal = ({ isOpen, onClose }) => {
-  if (!isOpen) return null;
-
-  const handleOverlayClick = (e) => {
-    if (e.target === e.currentTarget) {
-      onClose();
-    }
-  };
-
+  // Hooks must be called unconditionally at the top level
   const dialogRef = useRef(null);
   const onKeyDown = useCallback(
     (e) => {
       if (e.key === "Escape") {
         e.stopPropagation();
-        onClose();
+        onClose?.();
       }
     },
     [onClose]
   );
 
   useEffect(() => {
-    // Move focus to dialog for screen readers and keyboard users
+    // Only act when modal is open
+    if (!isOpen) return;
     if (dialogRef.current) {
       dialogRef.current.focus();
     }
-  }, []);
+  }, [isOpen]);
+
+  const handleOverlayClick = (e) => {
+    if (e.target === e.currentTarget) {
+      onClose?.();
+    }
+  };
+
+  if (!isOpen) return null;
 
   return (
     <div className={styles.modalOverlay} onClick={handleOverlayClick} role="presentation">
@@ -42,7 +44,12 @@ const HelpModal = ({ isOpen, onClose }) => {
       >
         <div className={styles.modalHeader}>
           <h2 id="help-modal-title" className={styles.modalTitle}>Directory Tracer - Help</h2>
-          <button className={styles.closeButton} onClick={onClose}>
+          <button
+            type="button"
+            className={styles.closeButton}
+            onClick={onClose}
+            aria-label="Close help dialog"
+          >
             ×
           </button>
         </div>

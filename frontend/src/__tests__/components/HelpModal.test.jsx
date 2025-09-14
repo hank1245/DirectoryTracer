@@ -17,7 +17,10 @@ describe("HelpModal", () => {
     const onClose = jest.fn();
     render(<HelpModal isOpen={true} onClose={onClose} />);
 
-    fireEvent.click(screen.getByRole("button", { name: "×" }));
+    // Button has an accessible name via aria-label
+    fireEvent.click(
+      screen.getByRole("button", { name: /close help dialog/i })
+    );
     expect(onClose).toHaveBeenCalled();
   });
 });
