@@ -1,4 +1,5 @@
 import React from "react";
+import * as Sentry from "@sentry/react";
 import styles from "../styles/App.module.css";
 
 export default class ErrorBoundary extends React.Component {
@@ -12,7 +13,7 @@ export default class ErrorBoundary extends React.Component {
   }
 
   componentDidCatch(error, info) {
-    // Optionally log to a service
+    Sentry.captureException(error, { extra: info });
     if (process.env.NODE_ENV !== "production") {
       // eslint-disable-next-line no-console
       console.error("App error:", error, info);
